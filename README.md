@@ -20,7 +20,7 @@
 ## 🛠️ Công Nghệ Sử Dụng
 
 | Thành Phần | Công Nghệ |
-|-----------|----------|
+|:-----------|:----------|
 | **Framework** | .NET Framework 4.7.2 / WPF (Windows Presentation Foundation) |
 | **Database** | SQL Server 2019+ |
 | **ORM** | Entity Framework 6.4.4 |
@@ -32,7 +32,7 @@
 
 ## 📁 Cấu Trúc Thư Mục
 
-```
+```text
 QL_TrungTamNgoaiNgu/
 ├── QL_TrungTamNgoaiNgu.slnx          # Solution file
 ├── run_DB.sql                         # Script khởi tạo database
@@ -125,13 +125,11 @@ cd QL_TrungTamNgoaiNgu
 
 #### **Cách 2B: Sử dụng Command Line**
 
-```bash
-sqlcmd -S your_server_name -U sa -P your_password -i "run_DB.sql"
+```bash	sqlcmd -S your_server_name -U sa -P your_password -i "run_DB.sql"
 ```
 
 **Ví dụ:**
-```bash
-sqlcmd -S LAPTOP-ABC\SQLEXPRESS -U sa -P 123456 -i "run_DB.sql"
+```bash	sqlcmd -S LAPTOP-ABC\SQLEXPRESS -U sa -P 123456 -i "run_DB.sql"
 ```
 
 ### 🔧 Bước 3: Sửa Server Name trong Connection String
@@ -143,7 +141,7 @@ Tìm section `<connectionStrings>`:
 ```xml
 <connectionStrings>
   <add name="HeThongQuanLyTrungTamNgoaiNguEntities" 
-       connectionString="metadata=res://*/Models/Model1.csdl|res://*/Models/Model1.ssdl|res://*/Models/Model1.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=LAPTOP-ABC\SQLEXPRESS;initial catalog=HeThongQuanLyTrungTamNgoaiNgu;integrated security=True;multipleactiveresultsets=True;application name=EntityFrameworkMutableProxy&quot;" 
+       connectionString="metadata=res://*/Models/Model1.csdl|res://*/Models/Model1.ssdl|res://*/Models/Model1.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=LAPTOP-ABC\\SQLEXPRESS;initial catalog=HeThongQuanLyTrungTamNgoaiNgu;integrated security=True;multipleactiveresultsets=True;application name=EntityFrameworkMutableProxy&quot;" 
        providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
@@ -151,7 +149,7 @@ Tìm section `<connectionStrings>`:
 **Các thành phần cần sửa:**
 
 | Thành Phần | Ý Nghĩa | Ví Dụ |
-|-----------|---------|-------|
+|:-----------|:---------|:-------|
 | `data source` | Tên server SQL | `LAPTOP-ABC\SQLEXPRESS` hoặc `localhost` |
 | `initial catalog` | Tên database | `HeThongQuanLyTrungTamNgoaiNgu` |
 | `User ID` | (nếu dùng SQL Auth) | `sa` |
@@ -198,7 +196,7 @@ data source=your_server.database.windows.net;initial catalog=HeThongQuanLyTrungT
 Script `run_DB.sql` sẽ tạo sẵn các tài khoản sau:
 
 | Email | Mật Khẩu | Role |
-|-------|---------|------|
+|:-------|:---------|:------|
 | `admin@center.edu.vn` | `Admin@2024!` | Quản Trị Viên |
 | `hva@student.edu.vn` | `HocVienA#99` | Học Viên |
 | `hvb@student.edu.vn` | `HVBee@2025` | Học Viên |
@@ -376,8 +374,5 @@ MIT License - Xem [LICENSE](LICENSE) file để chi tiết
 
 ---
 
-**Last Updated:** May 9, 2026  
-**Author:** Trần Hữu Vong
-#   d o a n N E T  
- #   d o a n N E T  
- 
+**Last Updated:** May 9, 2026  (11h36)
+**Author:** Trần Hữu Vọng
