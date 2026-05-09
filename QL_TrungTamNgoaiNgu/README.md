@@ -125,13 +125,11 @@ cd QL_TrungTamNgoaiNgu
 
 #### **Cách 2B: Sử dụng Command Line**
 
-```bash
-sqlcmd -S your_server_name -U sa -P your_password -i "run_DB.sql"
+```bash	sqlcmd -S your_server_name -U sa -P your_password -i "run_DB.sql"
 ```
 
 **Ví dụ:**
-```bash
-sqlcmd -S LAPTOP-ABC\SQLEXPRESS -U sa -P 123456 -i "run_DB.sql"
+```bash	sqlcmd -S LAPTOP-ABC\SQLEXPRESS -U sa -P 123456 -i "run_DB.sql"
 ```
 
 ### 🔧 Bước 3: Sửa Server Name trong Connection String
@@ -143,7 +141,7 @@ Tìm section `<connectionStrings>`:
 ```xml
 <connectionStrings>
   <add name="HeThongQuanLyTrungTamNgoaiNguEntities" 
-       connectionString="metadata=res://*/Models/Model1.csdl|res://*/Models/Model1.ssdl|res://*/Models/Model1.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=LAPTOP-ABC\SQLEXPRESS;initial catalog=HeThongQuanLyTrungTamNgoaiNgu;integrated security=True;multipleactiveresultsets=True;application name=EntityFrameworkMutableProxy&quot;" 
+       connectionString="metadata=res://*/Models/Model1.csdl|res://*/Models/Model1.ssdl|res://*/Models/Model1.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=LAPTOP-ABC\\SQLEXPRESS;initial catalog=HeThongQuanLyTrungTamNgoaiNgu;integrated security=True;multipleactiveresultsets=True;application name=EntityFrameworkMutableProxy&quot;" 
        providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
@@ -377,5 +375,4 @@ MIT License - Xem [LICENSE](LICENSE) file để chi tiết
 ---
 
 **Last Updated:** May 9, 2026  
-**Author:** Trần Hữu Vong
-
+**Author:** Trần Hữu Vọng
