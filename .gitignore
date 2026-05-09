@@ -1,0 +1,80 @@
+# .gitignore for doanNET Project
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Visual Studio files
+.vs/
+.vscode/
+*.sln.user
+*.csproj.user
+*.suoCacheFile
+*.VisualState.xml
+TestResult.xml
+
+# ReSharper files
+.resharper
+*.ReSharper.user
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Local configuration
+App.local.config
+app.local.config
+
+# Database
+*.mdf
+*.ldf
+*.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE temporary files
+*.sublime-workspace
+*.sublime-project
+
+# WebStorm
+.idea/
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.preferences
+.localhistory/
+
+# Log files
+*.log
+
+# Package files
+.nuget/
+packages.lock.json
+
+# Deployment files
+PublishProfiles/
+ServiceDefinitions.json
+
+# Office Open XML formats
+*.xlsx
+*.docx
+
+# Environment files
+.env
+.env.local

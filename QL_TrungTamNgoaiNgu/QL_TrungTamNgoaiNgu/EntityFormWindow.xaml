@@ -1,0 +1,164 @@
+<Window x:Class="QL_TrungTamNgoaiNgu.EntityFormWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Form du lieu"
+        Height="620"
+        Width="520"
+        WindowStartupLocation="CenterOwner"
+        Background="#101114">
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFBF00" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Padding" Value="10,7" />
+
+            <!-- Màu chữ -->
+            <Setter Property="Foreground" Value="#FFBF00" />
+
+            <!-- Nền -->
+            <Setter Property="Background" Value="#111318" />
+
+            <!-- Viền -->
+            <Setter Property="BorderBrush" Value="#4B351C" />
+            <Setter Property="BorderThickness" Value="1" />
+
+            <!-- Con trỏ nhập -->
+            <Setter Property="CaretBrush" Value="#FFBF00" />
+
+            <!-- Màu khi bôi đen -->
+            <Setter Property="SelectionBrush" Value="#FFBF00" />
+            <Setter Property="SelectionOpacity" Value="0.35" />
+
+            <!-- Khi disable vẫn nhìn thấy chữ -->
+            <Setter Property="IsEnabled" Value="True" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Height" Value="38" />
+            <Setter Property="MinWidth" Value="100" />
+            <Setter Property="Margin" Value="8,0,0,0" />
+            <Setter Property="Foreground" Value="#FFFFFF" />
+        </Style>
+
+        <!-- STYLE CHO SCROLLBAR HẸP VÀ MÀU XANH ĐEN NHẠT -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="6"/>
+            <!-- Làm hẹp lại từ 8 xuống 6 -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid x:Name="Bg" SnapsToDevicePixels="true">
+                            <Track x:Name="PART_Track" IsDirectionReversed="true" IsEnabled="{TemplateBinding IsEnabled}">
+                                <Track.Thumb>
+                                    <Thumb x:Name="Thumb">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <!-- Màu xanh đen nhạt #2D323C (nhạt hơn nền #101114) -->
+                                                <Border Background="#2D323C" CornerRadius="3" Margin="1,0" />
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <!-- Khi di chuột vào đổi sang màu sáng hơn một chút -->
+                                <Setter TargetName="Thumb" Property="Background" Value="#3E4552" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- STYLE CHO SCROLLVIEWER ĐỂ ÁP DỤNG SCROLLBAR -->
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" 
+                                                    CanContentScroll="{TemplateBinding CanContentScroll}" 
+                                                    CanHorizontallyScroll="False" 
+                                                    CanVerticallyScroll="False" 
+                                                    ContentTemplate="{TemplateBinding ContentTemplate}" 
+                                                    Content="{TemplateBinding Content}" 
+                                                    Grid.Column="0" 
+                                                    Margin="{TemplateBinding Padding}" 
+                                                    Grid.Row="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar" 
+                                       AutomationProperties.AutomationId="VerticalScrollBar" 
+                                       Cursor="Arrow" 
+                                       Grid.Column="1" 
+                                       Maximum="{TemplateBinding ScrollableHeight}" 
+                                       Minimum="0" 
+                                       Grid.Row="0" 
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" 
+                                       Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                       ViewportSize="{TemplateBinding ViewportHeight}"/>
+                            <ScrollBar x:Name="PART_HorizontalScrollBar" 
+                                       AutomationProperties.AutomationId="HorizontalScrollBar" 
+                                       Cursor="Arrow" 
+                                       Grid.Column="0" 
+                                       Maximum="{TemplateBinding ScrollableWidth}" 
+                                       Minimum="0" 
+                                       Orientation="Horizontal" 
+                                       Grid.Row="1" 
+                                       Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" 
+                                       Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" 
+                                       ViewportSize="{TemplateBinding ViewportWidth}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TitleTextBlock" FontSize="22" FontWeight="Bold" Margin="0,0,0,14" />
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl x:Name="FieldsItemsControl">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,12">
+
+                            <!-- FIX: Style áp dụng trực tiếp trong DataTemplate -->
+                            <StackPanel.Resources>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#FFBF00"/>
+                                </Style>
+                            </StackPanel.Resources>
+
+                            <TextBlock Text="{Binding Name}" Margin="0,0,0,4" />
+
+                            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                             IsReadOnly="{Binding IsReadOnly}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Content="Huy" Background="#4B351C" Click="CancelButton_OnClick" />
+            <Button Content="Luu" Background="#FF8A00" Click="SaveButton_OnClick" />
+        </StackPanel>
+    </Grid>
+</Window>
