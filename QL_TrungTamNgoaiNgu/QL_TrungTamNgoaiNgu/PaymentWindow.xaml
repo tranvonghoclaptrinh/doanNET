@@ -26,7 +26,46 @@
         <TextBlock Text="So tien" Foreground="#FFBF00" />
         <TextBox x:Name="SoTienTextBox" Height="36" Margin="0,4,0,10" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
         <TextBlock Text="Phuong thuc" Foreground="#FFBF00" />
-        <TextBox x:Name="PhuongThucTextBox" Text="Chuyen khoan" Height="36" Margin="0,4,0,10" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <ComboBox x:Name="PhuongThucComboBox"
+          SelectedIndex="0"
+          Height="40"
+          Margin="0,4,0,10"
+          FontSize="15"
+          FontWeight="SemiBold"
+          Foreground="#111111"
+          Background="#D6A23D"
+          BorderBrush="#7A551D"
+          Padding="8,4">
+
+            <ComboBox.Resources>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Foreground" Value="#111111"/>
+                    <Setter Property="Background" Value="#E5B654"/>
+                    <Setter Property="FontSize" Value="15"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Padding" Value="10,6"/>
+
+                    <Style.Triggers>
+                        <!-- Hover -->
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter Property="Background" Value="#F2C14E"/>
+                        </Trigger>
+
+                        <!-- Selected -->
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#C98B1F"/>
+                            <Setter Property="Foreground" Value="#111111"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ComboBox.Resources>
+
+            <ComboBoxItem Content="Bank transfer"/>
+            <ComboBoxItem Content="Cash"/>
+            <ComboBoxItem Content="Card"/>
+            <ComboBoxItem Content="E-wallet"/>
+        </ComboBox>
         <TextBlock Text="Ghi chu" Foreground="#FFBF00" />
         <TextBox x:Name="GhiChuTextBox" Height="36" Margin="0,4,0,16" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

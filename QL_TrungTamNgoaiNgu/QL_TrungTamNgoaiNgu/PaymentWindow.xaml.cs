@@ -1,5 +1,6 @@
 using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace QL_TrungTamNgoaiNgu
 {
@@ -27,7 +28,7 @@ namespace QL_TrungTamNgoaiNgu
 
         public int MaHoaDon { get; private set; }
         public int SoTien { get; private set; }
-        public string PhuongThuc => PhuongThucTextBox.Text;
+        public string PhuongThuc => (PhuongThucComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Bank transfer";
         public string MaChungTu => string.Empty;
         public string GhiChu => GhiChuTextBox.Text;
 
@@ -45,6 +46,12 @@ namespace QL_TrungTamNgoaiNgu
                 return;
             }
 
+            if (!IsPrintableAscii(GhiChuTextBox.Text))
+            {
+                MessageBox.Show("Ghi chu chi duoc dung tieng Anh khong dau va ky tu ASCII.", "Loi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             MaHoaDon = maHoaDon;
             SoTien = soTien;
             DialogResult = true;
@@ -53,6 +60,24 @@ namespace QL_TrungTamNgoaiNgu
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
+        }
+
+        private static bool IsPrintableAscii(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return true;
+            }
+
+            foreach (var ch in value)
+            {
+                if (ch < 32 || ch > 126)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

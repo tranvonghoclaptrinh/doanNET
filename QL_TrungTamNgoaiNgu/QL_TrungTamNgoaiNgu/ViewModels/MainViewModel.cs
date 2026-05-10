@@ -496,9 +496,16 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                 SELECT hd.MaHoaDon, dk.MaHocVien, nd.HoTen AS TenHocVien, nd.Email AS EmailHocVien,
                        dk.MaKhoaHoc, kh.TenKhoaHoc, hd.TongTien,
                        ISNULL(SUM(gd.SoTien), 0) AS DaThanhToan,
-                       hd.TongTien - ISNULL(SUM(gd.SoTien), 0) AS ConNo,
+                       CASE
+                           WHEN hd.TongTien - ISNULL(SUM(gd.SoTien), 0) > 0 THEN hd.TongTien - ISNULL(SUM(gd.SoTien), 0)
+                           ELSE 0
+                       END AS ConNo,
                        hd.HanThanhToan, hd.TrangThai,
-                       CASE WHEN hd.HanThanhToan < CAST(GETDATE() AS date) AND hd.TrangThai <> N'Đã hoàn tất' THEN 1 ELSE 0 END AS QuaHan
+                       CASE
+                           WHEN hd.HanThanhToan < CAST(GETDATE() AS date)
+                                AND hd.TongTien - ISNULL(SUM(gd.SoTien), 0) > 0 THEN 1
+                           ELSE 0
+                       END AS QuaHan
                 FROM HoaDonHocPhi hd
                 JOIN DangKyKhoaHoc dk ON hd.MaDangKy = dk.MaDangKy
                 JOIN NguoiDung nd ON dk.MaHocVien = nd.MaNguoiDung

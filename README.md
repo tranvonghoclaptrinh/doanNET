@@ -37,6 +37,7 @@ QL_TrungTamNgoaiNgu/
 ├── QL_TrungTamNgoaiNgu.slnx          # Solution file
 ├── run_DB.sql                         # Script khởi tạo database
 ├── LichDay.sql                        # SQL bổ sung
+├── payment.sql                        # Script thanh toán
 ├── select.sql                         # Query mẫu
 ├── packages/                          # NuGet packages
 │   └── EntityFramework.6.4.4/

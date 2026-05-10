@@ -253,15 +253,35 @@ namespace QL_TrungTamNgoaiNgu
                     throw new InvalidOperationException("Hay chon mot hoa don can thanh toan.");
                 }
 
+                var paid = GetPaidAmount(invoiceRow.MaHoaDon);
+                var remaining = Math.Max(invoiceRow.TongTien - paid, 0);
+                if (remaining <= 0)
+                {
+                    throw new InvalidOperationException("Hoa don nay khong con cong no can thanh toan.");
+                }
+
                 var info = $"Tong tien: {invoiceRow.TongTien:#,0}\n"
+                           + $"Da thanh toan: {paid:#,0}\n"
+                           + $"Con no: {remaining:#,0}\n"
                            + $"Ngay xuat: {invoiceRow.NgayXuat?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
                            + $"Han thanh toan: {invoiceRow.HanThanhToan?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
                            + $"Trang thai: {invoiceRow.TrangThai}";
 
-                return new PaymentWindow(invoiceRow.MaHoaDon, invoiceRow.TongTien, info);
+                return new PaymentWindow(invoiceRow.MaHoaDon, remaining, info);
             }
 
             return new PaymentWindow();
+        }
+
+        private static int GetPaidAmount(int maHoaDon)
+        {
+            using (var db = new HeThongQuanLyTrungTamNgoaiNguEntities())
+            {
+                return db.GiaoDichThanhToans
+                    .Where(item => item.MaHoaDon == maHoaDon)
+                    .Select(item => (int?)item.SoTien)
+                    .Sum() ?? 0;
+            }
         }
 
         private void LogoutButton_OnClick(object sender, RoutedEventArgs e)
