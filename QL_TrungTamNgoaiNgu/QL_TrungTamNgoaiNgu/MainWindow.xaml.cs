@@ -1,10 +1,12 @@
 using QL_TrungTamNgoaiNgu.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using QL_TrungTamNgoaiNgu.Models;
 
@@ -53,6 +55,18 @@ namespace QL_TrungTamNgoaiNgu
             }
 
             e.Column.Header = SplitPascalCase(e.PropertyName);
+
+            if (string.Equals(e.PropertyName, "NguoiXacNhan", StringComparison.OrdinalIgnoreCase))
+            {
+                e.Column = new DataGridTextColumn
+                {
+                    Header = e.Column.Header,
+                    Binding = new Binding(e.PropertyName)
+                    {
+                        Converter = NguoiXacNhanDisplayConverter.Instance
+                    }
+                };
+            }
         }
 
         private async void MainDataGrid_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -412,6 +426,56 @@ namespace QL_TrungTamNgoaiNgu
             if (type == typeof(DateTime)) return DateTime.Now.ToString("yyyy-MM-dd");
             if (type == typeof(int)) return "0";
             return string.Empty;
+        }
+
+        private sealed class NguoiXacNhanDisplayConverter : IValueConverter
+        {
+            public static readonly NguoiXacNhanDisplayConverter Instance = new NguoiXacNhanDisplayConverter();
+            private static Dictionary<int, string> _namesById;
+
+            public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                if (value == null)
+                {
+                    return string.Empty;
+                }
+
+                if (value is int maNguoiDung)
+                {
+                    return GetNamesById().TryGetValue(maNguoiDung, out var hoTen) ? hoTen : maNguoiDung.ToString();
+                }
+
+                return value;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+            {
+                return Binding.DoNothing;
+            }
+
+            private static Dictionary<int, string> GetNamesById()
+            {
+                if (_namesById != null)
+                {
+                    return _namesById;
+                }
+
+                try
+                {
+                    using (var db = new HeThongQuanLyTrungTamNgoaiNguEntities())
+                    {
+                        _namesById = db.NguoiDungs
+                            .AsNoTracking()
+                            .ToDictionary(item => item.MaNguoiDung, item => item.HoTen);
+                    }
+                }
+                catch
+                {
+                    _namesById = new Dictionary<int, string>();
+                }
+
+                return _namesById;
+            }
         }
     }
 }

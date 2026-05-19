@@ -68,7 +68,7 @@ namespace QL_TrungTamNgoaiNgu.Models
         public string PhuongThuc { get; set; }
         public string MaChungTu { get; set; }
         public string GhiChu { get; set; }
-        public string TenNguoiXacNhan { get; set; }
+        public string NguoiXacNhan { get; set; }
     }
 
     public sealed class LichDayViewRow

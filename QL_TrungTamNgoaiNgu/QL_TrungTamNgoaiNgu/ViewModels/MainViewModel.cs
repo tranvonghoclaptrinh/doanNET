@@ -482,7 +482,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                         PhuongThuc = item.PhuongThuc,
                         MaChungTu = item.MaChungTu,
                         GhiChu = item.GhiChu,
-                        TenNguoiXacNhan = item.NguoiDung.HoTen
+                        NguoiXacNhan = item.NguoiDung.HoTen
                     })
                     .ToListAsync();
             }
