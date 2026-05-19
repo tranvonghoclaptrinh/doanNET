@@ -116,6 +116,11 @@ namespace QL_TrungTamNgoaiNgu
                 return false;
             }
 
+            if (string.Equals(propertyName, "MaHocVien", StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
             return propertyName.StartsWith("Ma", StringComparison.OrdinalIgnoreCase)
                    || propertyName.IndexOf("MatKhau", StringComparison.OrdinalIgnoreCase) >= 0
                    || propertyName.IndexOf("MuoiMatKhau", StringComparison.OrdinalIgnoreCase) >= 0
@@ -141,6 +146,21 @@ namespace QL_TrungTamNgoaiNgu
                 if (isEdit && viewModel.SelectedRow == null)
                 {
                     MessageBox.Show("Hay chon mot dong de sua.");
+                    return;
+                }
+
+                if (!isEdit && viewModel.Session.IsTeacher && viewModel.SelectedTable?.Key == "DiemSo")
+                {
+                    var scoreDialog = new TeacherScoreWindow(viewModel.Session.MaNguoiDung)
+                    {
+                        Owner = this
+                    };
+
+                    if (scoreDialog.ShowDialog() == true)
+                    {
+                        await viewModel.SaveEntityAsync(scoreDialog.Values, isEdit: false);
+                    }
+
                     return;
                 }
 
@@ -223,7 +243,7 @@ namespace QL_TrungTamNgoaiNgu
 
         private static PaymentWindow CreatePaymentWindow(MainViewModel viewModel)
         {
-            if (viewModel.Session.IsStudent && viewModel.SelectedTable?.Key == "vw_CongNoHocPhi")
+            if (viewModel.SelectedTable?.Key == "vw_CongNoHocPhi")
             {
                 if (!(viewModel.SelectedRow is CongNoHocPhiRow debtRow))
                 {
@@ -246,41 +266,102 @@ namespace QL_TrungTamNgoaiNgu
                 return new PaymentWindow(debtRow.MaHoaDon, debtRow.ConNo, info);
             }
 
-            if (viewModel.Session.IsStudent && viewModel.SelectedTable?.Key == "HoaDonHocPhi")
+            if (viewModel.SelectedTable?.Key == "HoaDonHocPhi")
             {
+                if (viewModel.SelectedRow is HoaDonHocPhiViewRow invoiceViewRow)
+                {
+                    if (invoiceViewRow.ConNo <= 0)
+                    {
+                        throw new InvalidOperationException("Hoa don nay khong con cong no can thanh toan.");
+                    }
+
+                    var viewInfo = $"Ma hoc vien: {invoiceViewRow.MaHocVien}\n"
+                                   + $"Hoc vien: {invoiceViewRow.TenHocVien}\n"
+                                   + $"Khoa hoc: {invoiceViewRow.TenKhoaHoc}\n"
+                                   + $"Tong tien: {invoiceViewRow.TongTien:#,0}\n"
+                                   + $"Da thanh toan: {invoiceViewRow.DaThanhToan:#,0}\n"
+                                   + $"Con no: {invoiceViewRow.ConNo:#,0}\n"
+                                   + $"Ngay xuat: {invoiceViewRow.NgayXuat?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
+                                   + $"Han thanh toan: {invoiceViewRow.HanThanhToan?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
+                                   + $"Trang thai: {invoiceViewRow.TrangThai}";
+
+                    return new PaymentWindow(invoiceViewRow.MaHoaDon, invoiceViewRow.ConNo, viewInfo);
+                }
+
                 if (!(viewModel.SelectedRow is HoaDonHocPhi invoiceRow))
                 {
                     throw new InvalidOperationException("Hay chon mot hoa don can thanh toan.");
                 }
 
-                var paid = GetPaidAmount(invoiceRow.MaHoaDon);
-                var remaining = Math.Max(invoiceRow.TongTien - paid, 0);
-                if (remaining <= 0)
+                var details = GetInvoicePaymentDetails(invoiceRow.MaHoaDon);
+                if (details.ConNo <= 0)
                 {
                     throw new InvalidOperationException("Hoa don nay khong con cong no can thanh toan.");
                 }
 
-                var info = $"Tong tien: {invoiceRow.TongTien:#,0}\n"
-                           + $"Da thanh toan: {paid:#,0}\n"
-                           + $"Con no: {remaining:#,0}\n"
-                           + $"Ngay xuat: {invoiceRow.NgayXuat?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
-                           + $"Han thanh toan: {invoiceRow.HanThanhToan?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
-                           + $"Trang thai: {invoiceRow.TrangThai}";
+                var info = $"Ma hoc vien: {details.MaHocVien}\n"
+                           + $"Hoc vien: {details.TenHocVien}\n"
+                           + $"Khoa hoc: {details.TenKhoaHoc}\n"
+                           + $"Tong tien: {details.TongTien:#,0}\n"
+                           + $"Da thanh toan: {details.DaThanhToan:#,0}\n"
+                           + $"Con no: {details.ConNo:#,0}\n"
+                           + $"Ngay xuat: {details.NgayXuat?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
+                           + $"Han thanh toan: {details.HanThanhToan?.ToString("dd/MM/yyyy") ?? "Chua co"}\n"
+                           + $"Trang thai: {details.TrangThai}";
 
-                return new PaymentWindow(invoiceRow.MaHoaDon, remaining, info);
+                return new PaymentWindow(invoiceRow.MaHoaDon, details.ConNo, info);
             }
 
-            return new PaymentWindow();
+            throw new InvalidOperationException("Nut thanh toan chi dung cho tab hoa don, cong no hoc phi.");
         }
 
-        private static int GetPaidAmount(int maHoaDon)
+        private static HoaDonHocPhiViewRow GetInvoicePaymentDetails(int maHoaDon)
         {
             using (var db = new HeThongQuanLyTrungTamNgoaiNguEntities())
             {
-                return db.GiaoDichThanhToans
+                var invoice = db.HoaDonHocPhis
+                    .AsNoTracking()
+                    .Where(item => item.MaHoaDon == maHoaDon)
+                    .Select(item => new
+                    {
+                        item.MaHoaDon,
+                        item.MaDangKy,
+                        item.TongTien,
+                        item.NgayXuat,
+                        item.HanThanhToan,
+                        item.TrangThai,
+                        MaHocVien = item.DangKyKhoaHoc.MaHocVien,
+                        TenHocVien = item.DangKyKhoaHoc.NguoiDung.HoTen,
+                        MaKhoaHoc = item.DangKyKhoaHoc.MaKhoaHoc,
+                        TenKhoaHoc = item.DangKyKhoaHoc.KhoaHoc.TenKhoaHoc
+                    })
+                    .FirstOrDefault();
+
+                if (invoice == null)
+                {
+                    throw new InvalidOperationException("Khong tim thay hoa don da chon.");
+                }
+
+                var paid = db.GiaoDichThanhToans
                     .Where(item => item.MaHoaDon == maHoaDon)
                     .Select(item => (int?)item.SoTien)
                     .Sum() ?? 0;
+
+                return new HoaDonHocPhiViewRow
+                {
+                    MaHoaDon = invoice.MaHoaDon,
+                    MaDangKy = invoice.MaDangKy,
+                    MaHocVien = invoice.MaHocVien,
+                    TenHocVien = invoice.TenHocVien,
+                    MaKhoaHoc = invoice.MaKhoaHoc,
+                    TenKhoaHoc = invoice.TenKhoaHoc,
+                    TongTien = invoice.TongTien,
+                    DaThanhToan = paid,
+                    ConNo = Math.Max(invoice.TongTien - paid, 0),
+                    NgayXuat = invoice.NgayXuat,
+                    HanThanhToan = invoice.HanThanhToan,
+                    TrangThai = invoice.TrangThai
+                };
             }
         }
 

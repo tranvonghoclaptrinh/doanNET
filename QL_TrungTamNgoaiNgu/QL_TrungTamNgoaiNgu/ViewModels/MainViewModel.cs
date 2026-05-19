@@ -69,11 +69,11 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
         public bool CanCreate => (_session.IsAdmin && CurrentEntityType != null) || (_session.IsTeacher && SelectedTable?.Key == "DiemSo");
         public bool CanEdit => (_session.IsAdmin && (CurrentEntityType != null || SelectedTable?.Key == "YeuCauSuaDiem")) || (_session.IsTeacher && (SelectedTable?.Key == "DiemSo" || SelectedTable?.Key == "vw_BangDiem"));
         public bool CanDelete => _session.IsAdmin && CurrentEntityType != null;
-        public bool CanUsePayment => _session.IsAccountant
-                                     || _session.IsAdmin
-                                     || (_session.IsStudent && IsStudentPaymentTable);
-        private bool IsStudentPaymentTable => SelectedTable?.Key == "HoaDonHocPhi"
-                                              || SelectedTable?.Key == "vw_CongNoHocPhi";
+        public bool CanUsePayment => IsPaymentTable
+                                     && (_session.IsAccountant || _session.IsAdmin || _session.IsStudent);
+        public Visibility PaymentButtonVisibility => CanUsePayment ? Visibility.Visible : Visibility.Collapsed;
+        private bool IsPaymentTable => SelectedTable?.Key == "HoaDonHocPhi"
+                                       || SelectedTable?.Key == "vw_CongNoHocPhi";
         public string UserSummary => $"{_session.HoTen} - {string.Join(", ", _session.Roles)}";
 
         public TableMenuItem SelectedTable
@@ -95,6 +95,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                     OnPropertyChanged(nameof(CanEdit));
                     OnPropertyChanged(nameof(CanDelete));
                     OnPropertyChanged(nameof(CanUsePayment));
+                    OnPropertyChanged(nameof(PaymentButtonVisibility));
                 }
             }
         }
@@ -348,6 +349,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                     .OrderBy(item => item.HoTen)
                     .Select(item => new NguoiDungPublicRow
                     {
+                        MaHocVien = item.MaNguoiDung,
                         HoTen = item.HoTen,
                         Email = item.Email,
                         SoDienThoai = item.SoDienThoai,
@@ -398,6 +400,25 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                 query = query.Where(item => item.KhoaHoc.NguoiDungs.Any(teacher => teacher.MaNguoiDung == _session.MaNguoiDung));
             }
 
+            if (_session.IsAccountant || _session.IsTeacher)
+            {
+                return await query
+                    .OrderByDescending(item => item.NgayDangKy)
+                    .Select(item => new DangKyHocVienRow
+                    {
+                        MaDangKy = item.MaDangKy,
+                        MaHocVien = item.MaHocVien,
+                        TenHocVien = item.NguoiDung.HoTen,
+                        MaKhoaHoc = item.MaKhoaHoc,
+                        TenKhoaHoc = item.KhoaHoc.TenKhoaHoc,
+                        NgayDangKy = item.NgayDangKy,
+                        HocPhiThoiDiem = item.HocPhiThoiDiem,
+                        TrangThai = item.TrangThai,
+                        GhiChu = item.GhiChu
+                    })
+                    .ToListAsync();
+            }
+
             return await query.OrderByDescending(item => item.NgayDangKy).ToListAsync();
         }
 
@@ -409,6 +430,31 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                 query = query.Where(item => item.DangKyKhoaHoc.MaHocVien == _session.MaNguoiDung);
             }
 
+            if (!_session.IsAdmin)
+            {
+                return await query
+                    .GroupJoin(db.GiaoDichThanhToans.AsNoTracking(),
+                        hoaDon => hoaDon.MaHoaDon,
+                        giaoDich => giaoDich.MaHoaDon,
+                        (hoaDon, giaoDichs) => new HoaDonHocPhiViewRow
+                        {
+                            MaHoaDon = hoaDon.MaHoaDon,
+                            MaDangKy = hoaDon.MaDangKy,
+                            MaHocVien = hoaDon.DangKyKhoaHoc.MaHocVien,
+                            TenHocVien = hoaDon.DangKyKhoaHoc.NguoiDung.HoTen,
+                            MaKhoaHoc = hoaDon.DangKyKhoaHoc.MaKhoaHoc,
+                            TenKhoaHoc = hoaDon.DangKyKhoaHoc.KhoaHoc.TenKhoaHoc,
+                            TongTien = hoaDon.TongTien,
+                            DaThanhToan = giaoDichs.Select(item => (int?)item.SoTien).Sum() ?? 0,
+                            ConNo = hoaDon.TongTien - (giaoDichs.Select(item => (int?)item.SoTien).Sum() ?? 0),
+                            NgayXuat = hoaDon.NgayXuat,
+                            HanThanhToan = hoaDon.HanThanhToan,
+                            TrangThai = hoaDon.TrangThai
+                        })
+                    .OrderByDescending(item => item.NgayXuat)
+                    .ToListAsync();
+            }
+
             return await query.OrderByDescending(item => item.NgayXuat).ToListAsync();
         }
 
@@ -418,6 +464,27 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
             if (_session.IsStudent && !_session.IsAdmin)
             {
                 query = query.Where(item => item.HoaDonHocPhi.DangKyKhoaHoc.MaHocVien == _session.MaNguoiDung);
+            }
+
+            if (!_session.IsAdmin)
+            {
+                return await query
+                    .OrderByDescending(item => item.NgayGiaoDich)
+                    .Select(item => new GiaoDichThanhToanViewRow
+                    {
+                        MaGiaoDich = item.MaGiaoDich,
+                        MaHoaDon = item.MaHoaDon,
+                        MaHocVien = item.HoaDonHocPhi.DangKyKhoaHoc.MaHocVien,
+                        TenHocVien = item.HoaDonHocPhi.DangKyKhoaHoc.NguoiDung.HoTen,
+                        TenKhoaHoc = item.HoaDonHocPhi.DangKyKhoaHoc.KhoaHoc.TenKhoaHoc,
+                        NgayGiaoDich = item.NgayGiaoDich,
+                        SoTien = item.SoTien,
+                        PhuongThuc = item.PhuongThuc,
+                        MaChungTu = item.MaChungTu,
+                        GhiChu = item.GhiChu,
+                        TenNguoiXacNhan = item.NguoiDung.HoTen
+                    })
+                    .ToListAsync();
             }
 
             return await query.OrderByDescending(item => item.NgayGiaoDich).ToListAsync();
@@ -485,6 +552,27 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
             else if (_session.IsStudent && !_session.IsAdmin)
             {
                 query = query.Where(item => item.DangKyKhoaHoc.MaHocVien == _session.MaNguoiDung);
+            }
+
+            if (_session.IsTeacher || _session.IsAccountant)
+            {
+                return await query
+                    .OrderBy(item => item.MaDiem)
+                    .Select(item => new DiemSoViewRow
+                    {
+                        MaDiem = item.MaDiem,
+                        MaDangKy = item.MaDangKy,
+                        MaHocVien = item.DangKyKhoaHoc.MaHocVien,
+                        TenHocVien = item.DangKyKhoaHoc.NguoiDung.HoTen,
+                        MaGiangVien = item.MaGiangVien,
+                        TenGiangVien = item.NguoiDung.HoTen,
+                        TenKhoaHoc = item.DangKyKhoaHoc.KhoaHoc.TenKhoaHoc,
+                        LoaiKiemTra = item.LoaiKiemTra,
+                        Diem = item.Diem,
+                        NgayKiemTra = item.NgayKiemTra,
+                        NhanXet = item.NhanXet
+                    })
+                    .ToListAsync();
             }
 
             return await query.OrderBy(item => item.MaDiem).ToListAsync();
@@ -559,7 +647,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
         private static string BuildBangDiemSql()
         {
             return @"
-                SELECT ds.MaDiem, dk.MaDangKy, hv.HoTen AS TenHocVien, kh.TenKhoaHoc,
+                SELECT ds.MaDiem, dk.MaDangKy, dk.MaHocVien, hv.HoTen AS TenHocVien, kh.TenKhoaHoc,
                        gv.HoTen AS TenGiangVienCham, ds.LoaiKiemTra, ds.Diem,
                        ds.NgayKiemTra, ds.NhanXet,
                        CASE WHEN ds.Diem >= 8 THEN N'Giỏi'
@@ -579,7 +667,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
         private static string BuildStudentBangDiemSql()
         {
             return @"
-                SELECT ds.MaDiem, dk.MaDangKy, hv.HoTen AS TenHocVien, kh.TenKhoaHoc,
+                SELECT ds.MaDiem, dk.MaDangKy, dk.MaHocVien, hv.HoTen AS TenHocVien, kh.TenKhoaHoc,
                        gv.HoTen AS TenGiangVienCham, ds.LoaiKiemTra, ds.Diem,
                        ds.NgayKiemTra, ds.NhanXet,
                        CASE WHEN ds.Diem >= 8 THEN N'Giỏi'
@@ -598,7 +686,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
         private async Task<IList> LoadDiemDanhRowsAsync(HeThongQuanLyTrungTamNgoaiNguEntities db)
         {
             var sql = @"
-                SELECT lhv.MaLichHocVien, ld.NgayDay, ld.GioBatDau, kh.TenKhoaHoc,
+                SELECT lhv.MaLichHocVien, dk.MaHocVien, ld.NgayDay, ld.GioBatDau, kh.TenKhoaHoc,
                        hv.HoTen AS TenHocVien, gv.HoTen AS TenGiangVien, ph.TenPhong,
                        lhv.DiemDanh, lhv.GhiChu
                 FROM LichHocVien lhv
@@ -702,7 +790,6 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                 {
                     new TableMenuItem("NguoiDung", "Nguoi dung", "Tai khoan, email, so dien thoai"),
                     new TableMenuItem("VaiTro", "Vai tro", "Nhom quyen he thong"),
-                    new TableMenuItem("NguoiDungVaiTro", "Nguoi dung - Vai tro", "Gan quyen theo role"),
                     new TableMenuItem("KhoaHoc", "Khoa hoc", "Danh muc khoa va hoc phi"),
                     new TableMenuItem("DangKyKhoaHoc", "Dang ky khoa hoc", "Lich su dang ky hoc"),
                     new TableMenuItem("HoaDonHocPhi", "Hoa don hoc phi", "Cong no va han thanh toan"),
@@ -716,9 +803,6 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
                     new TableMenuItem("YeuCauSuaDiem", "Yeu cau sua diem", "Admin duyet yeu cau tu giang vien"),
                     new TableMenuItem("vw_CongNoHocPhi", "Bao cao cong no", "Cong no hoc phi"),
                     new TableMenuItem("vw_DoanhThuTheoThang", "Doanh thu thang", "Doanh thu theo thang"),
-                    new TableMenuItem("vw_LichDay", "View lich day", "Lich day tong hop"),
-                    new TableMenuItem("vw_BangDiem", "View bang diem", "Bang diem tong hop"),
-                    new TableMenuItem("vw_DiemDanh", "View diem danh", "Diem danh tong hop")
                 };
             }
 
@@ -1182,6 +1266,7 @@ namespace QL_TrungTamNgoaiNgu.ViewModels
 
         public sealed class NguoiDungPublicRow
         {
+            public int MaHocVien { get; set; }
             public string HoTen { get; set; }
             public string Email { get; set; }
             public string SoDienThoai { get; set; }

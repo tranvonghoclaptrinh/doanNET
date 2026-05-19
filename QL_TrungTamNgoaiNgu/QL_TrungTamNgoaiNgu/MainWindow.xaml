@@ -462,6 +462,7 @@
                                     Content="Xoa" />
                             <Button Style="{StaticResource ToolbarButtonStyle}"
                                     IsEnabled="{Binding CanUsePayment}"
+                                    Visibility="{Binding PaymentButtonVisibility}"
                                     Click="PaymentButton_OnClick"
                                     Background="{StaticResource AccentBrush}"
                                     BorderBrush="{StaticResource AccentBrush}"

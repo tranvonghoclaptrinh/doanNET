@@ -16,6 +16,8 @@ namespace QL_TrungTamNgoaiNgu
         {
             MaHoaDonTextBox.Text = maHoaDon.ToString();
             SoTienTextBox.Text = soTien.ToString();
+            MaChungTuTextBox.Text = CreateVoucherCode(maHoaDon);
+            GhiChuTextBox.Text = $"Thanh toan hoc phi hoa don {maHoaDon}";
             MaHoaDonTextBox.IsReadOnly = true;
             MaHoaDonTextBox.Opacity = 0.75;
 
@@ -29,7 +31,7 @@ namespace QL_TrungTamNgoaiNgu
         public int MaHoaDon { get; private set; }
         public int SoTien { get; private set; }
         public string PhuongThuc => (PhuongThucComboBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Bank transfer";
-        public string MaChungTu => string.Empty;
+        public string MaChungTu => MaChungTuTextBox.Text;
         public string GhiChu => GhiChuTextBox.Text;
 
         private void PayButton_OnClick(object sender, RoutedEventArgs e)
@@ -49,6 +51,12 @@ namespace QL_TrungTamNgoaiNgu
             if (!IsPrintableAscii(GhiChuTextBox.Text))
             {
                 MessageBox.Show("Ghi chu chi duoc dung tieng Anh khong dau va ky tu ASCII.", "Loi", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!IsPrintableAscii(MaChungTuTextBox.Text))
+            {
+                MessageBox.Show("Ma chung tu chi duoc dung ky tu ASCII.", "Loi", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -78,6 +86,11 @@ namespace QL_TrungTamNgoaiNgu
             }
 
             return true;
+        }
+
+        private static string CreateVoucherCode(int maHoaDon)
+        {
+            return $"HD{maHoaDon}-{DateTime.Now:yyyyMMddHHmmss}";
         }
     }
 }

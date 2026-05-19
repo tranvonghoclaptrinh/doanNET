@@ -1,0 +1,30 @@
+<Window x:Class="QL_TrungTamNgoaiNgu.TeacherScoreWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Nhap diem"
+        Height="560"
+        Width="520"
+        WindowStartupLocation="CenterOwner"
+        Background="#101114">
+    <StackPanel Margin="22">
+        <TextBlock Text="Nhap diem hoc vien" Foreground="#FFBF00" FontSize="22" FontWeight="Bold" Margin="0,0,0,16" />
+        <TextBlock Text="Ma giang vien" Foreground="#FFBF00" />
+        <TextBox x:Name="MaGiangVienTextBox" Height="36" Margin="0,4,0,10" IsReadOnly="True" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <TextBlock Text="Ten hoc vien" Foreground="#FFBF00" />
+        <ComboBox x:Name="HocVienComboBox" DisplayMemberPath="TenHocVien" SelectedValuePath="MaHocVien" Height="38" Margin="0,4,0,10" SelectionChanged="HocVienComboBox_OnSelectionChanged" />
+        <TextBlock Text="Ma hoc vien" Foreground="#FFBF00" />
+        <TextBox x:Name="MaHocVienTextBox" Height="36" Margin="0,4,0,10" IsReadOnly="True" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <TextBlock Text="Khoa hoc" Foreground="#FFBF00" />
+        <ComboBox x:Name="KhoaHocComboBox" DisplayMemberPath="TenKhoaHoc" SelectedValuePath="MaDangKy" Height="38" Margin="0,4,0,10" />
+        <TextBlock Text="Loai kiem tra" Foreground="#FFBF00" />
+        <TextBox x:Name="LoaiKiemTraTextBox" Height="36" Margin="0,4,0,10" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <TextBlock Text="Diem" Foreground="#FFBF00" />
+        <TextBox x:Name="DiemTextBox" Height="36" Margin="0,4,0,10" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <TextBlock Text="Ghi chu" Foreground="#FFBF00" />
+        <TextBox x:Name="NhanXetTextBox" Height="36" Margin="0,4,0,16" Foreground="#FFBF00" Background="#111318" BorderBrush="#4B351C" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Huy" Width="90" Height="36" Margin="0,0,8,0" Background="#4B351C" Foreground="#FFFFFF" Click="CancelButton_OnClick" />
+            <Button Content="Luu" Width="120" Height="36" Background="#16A34A" Foreground="#FFFFFF" Click="SaveButton_OnClick" />
+        </StackPanel>
+    </StackPanel>
+</Window>
